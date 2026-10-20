@@ -1,4 +1,5 @@
-import requests
+import requests, time
+from bs4 import BeautifulSoup
 
 class No:
     def __init__(self, url=0, anterior=None):
@@ -36,18 +37,23 @@ class Pilha:
         return c
 
 sites = Pilha()
-x = ["www.ifpb.edu.br", "www.google.com", "www.youtube.com"]
-for i in x:
-    sites.push(i)
-
+db = open("sites_registrados.txt", "r")
+conteudo = db.read()
+registrados = conteudo.splitlines()
+db.close()
+for site in registrados:
+    sites.push(site)
 
 def main():
     while True:
         cli = input(">")
         if cli.lower().startswith("#add "):
             sites.push(cli.lower().lstrip("#add "))
+            db = open("sites_registrados.txt", "a")
+            db.write("\n" + cli.lower().lstrip("#add "))
+            db.close
 
-        elif cli.lower() == "#show":
+        elif cli.lower().strip() == "#show":
             print(str(sites).replace(" -> None", ""))
 
         elif cli.lower() == "#pop":
@@ -56,12 +62,15 @@ def main():
 
         elif cli.lower().startswith("#buscar "):
             url = cli.lower().lstrip("#buscar ")
-            if url in x:
+            if url in registrados:
                 url = "https://" + url
                 saida = requests.get(url)
                 print(saida.status_code)
 
-        elif cli.lower() == "#sair":
+        elif cli.lower().strip() == "#exit":
+            print("Encerrando Programa...")
+            time.sleep(1)
             break
+
 if __name__ == "__main__":
     main()
