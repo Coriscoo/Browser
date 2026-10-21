@@ -1,0 +1,16 @@
+<<<<<<< HEAD
+www.ifpb.edu.br
+www.ifpb.edu.br/tsi
+www.ifpb.edu.br/tsi/professores
+www.ifpb.edu.br/tsi/alunos
+www.ifpb.edu.br/rc
+www.ifpb.edu.br/rc/coordenaca
+https://www.ifpb.edu.br/noticias/2026/10/ifpb-e-ifsertaopb-determinam-suspensao-de-atividades-presenciais-nos-dias-23-e-26-10https://www.ifpb.edu.br/noticias/2026/10/ifpb-e-ifsertaopb-determinam-suspensao-de-atividades-presenciais-nos-dias-23-e-26-10
+https://www.ifpb.edu.br/ti/acesso-a-sistemas
+=======
+
+<<<<<<< HEAD
+youtube.com
+>>>>>>> 3173108572ad583274654372792dc0fb7273f8ba
+=======
+>>>>>>> 709e03d991570e090cfaa6f5bef33c67c57b28bc

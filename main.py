@@ -10,7 +10,9 @@ def main():
     registrados = conteudo.splitlines()
     db.close()
     for site in registrados:
-        sites.inserir_fim(site)
+        site.strip()
+        if site:
+            sites.inserir_fim(site)
 
     print("Forma de Uso:\n" \
     "#show --> Mostra os sites ja registrados\n" \
@@ -23,63 +25,75 @@ def main():
     "#historico\n"
     "#exit --> Encerra o programa\n")
     while True:
-        cli = input(">")
-        if cli.lower().startswith("#add "):
-            sites.inserir_fim(cli.lower().removeprefix("#add ").strip()) 
-            db = open("sites_registrados.txt", "a")
-            db.write("\n" + cli.lower().removeprefix("#add ").strip())
-            db.close
-        elif cli.lower().strip() == "#show":
-            print(str(sites).replace("<->", ""))
+        try:
+            cli = input(">")
+            if cli.lower().startswith("#add "):
+                domain = cli.lower().removeprefix("#add").removeprefix("http://").removeprefix("https://").strip()
+                domain = domain.removeprefix("http://")
+                domain = domain.removeprefix("https://").strip()
+                if domain not in sites.lista():
+                    sites.inserir_fim(domain)
+                    db = open("sites_registrados.txt", "a")
+                    db.write("\n" + domain)
+                    db.close
+            elif cli.lower().strip() == "#show":
+                mostrar = str(sites).replace("<->", "")
+                mostrar = mostrar.lstrip("[").rstrip("]")
+                mostrar = mostrar.lstrip("ÿþ")
+                print(mostrar.strip())
 
-        elif cli.lower().startswith("#pop"):
-            if cli.lower().strip() == "#pop":
-                sites.remover_fim()
-            else:
-                sites.remover(cli.lower().removeprefix("#pop").strip())
-            lista_pop = sites.lista()
-            db = open("sites_registrados.txt", "w")
-            for site in lista_pop:
-                db.write("\n" + site)
-            db.close
+            elif cli.lower().startswith("#pop"):
+                if cli.lower().strip() == "#pop":
+                    sites.remover_fim()
+                else:
+                    sites.remover(cli.lower().removeprefix("#pop").strip())
+                lista_pop = sites.lista()
+                db = open("sites_registrados.txt", "w")
+                for site in lista_pop:
+                    db.write("\n" + site)
+                db.close
 
-        elif cli.lower().startswith("#buscar"):
-            url = cli.lower().removeprefix("#buscar").strip()
-            resultado = pagina_web("https://" + url)
+              elif cli.lower().startswith("#buscar"):
+                  url = cli.lower().removeprefix("#buscar").strip()
+                  resultado = pagina_web("https://" + url)
 
-            if resultado is not None:
-                historico.visitar(url)
+                  if resultado is not None:
+                      historico.visitar(url)
 
-                titulo, elementos, links = resultado
-                print(f"Home: {historico.pagina_atual()}")
-                print(titulo)
-                print(elementos)
-                print(links)
-            else:
-                print("Url nao esta registrada.")
-            
-        elif cli.lower().startswith("#voltar"):
-            url = historico.voltar()
+                      titulo, elementos, links = resultado
+                      print(f"Home: {historico.pagina_atual()}")
+                      print(titulo)
+                      print(elementos)
+                      print(links)
+                  else:
+                      print("Url nao esta registrada.")
 
-            if url is None:
-                print("Não há página anterior.")
-            else:
-                print(f"Home: {url}")
+              elif cli.lower().startswith("#voltar"):
+                  url = historico.voltar()
 
-        elif cli.lower().startswith("#avancar"):
-            url = historico.avancar()
+                  if url is None:
+                      print("Não há página anterior.")
+                  else:
+                      print(f"Home: {url}")
 
-            if url is None:
-                print("Não há página seguinte.")
-            else:
-                print(f"Home: {url}")
+              elif cli.lower().startswith("#avancar"):
+                  url = historico.avancar()
 
-        elif cli.lower().startswith("#historico"):
-            print("Histórico:", historico.historico())
-            print("Home:", historico.pagina_atual())
+                  if url is None:
+                      print("Não há página seguinte.")
+                  else:
+                      print(f"Home: {url}")
 
-        elif cli.lower().strip() == "#exit":
-            print("Encerrando Programa...")
+              elif cli.lower().startswith("#historico"):
+                  print("Histórico:", historico.historico())
+                  print("Home:", historico.pagina_atual())
+
+                  elif cli.lower().strip() == "#exit":
+                      print("Encerrando Programa...")
+                      time.sleep(1)
+                      break
+        except KeyboardInterrupt:
+            print("\nEncerrando Programa...")
             time.sleep(1)
             break
 
