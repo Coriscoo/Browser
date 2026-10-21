@@ -21,9 +21,9 @@ def main():
     while True:
         cli = input(">")
         if cli.lower().startswith("#add "):
-            sites.inserir_fim(cli.lower().removeprefix("#add").strip())
+            sites.inserir_fim(cli.lower().removeprefix("#add ").strip()) 
             db = open("sites_registrados.txt", "a")
-            db.write("\n" + cli.lower().removeprefix("#add").strip())
+            db.write("\n" + cli.lower().removeprefix("#add ").strip())
             db.close
         elif cli.lower().strip() == "#show":
             print(str(sites).replace("<->", ""))
