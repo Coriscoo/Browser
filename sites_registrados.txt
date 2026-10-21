@@ -9,5 +9,8 @@ https://www.ifpb.edu.br/noticias/2026/10/ifpb-e-ifsertaopb-determinam-suspensao-
 https://www.ifpb.edu.br/ti/acesso-a-sistemas
 =======
 
+<<<<<<< HEAD
 youtube.com
 >>>>>>> 3173108572ad583274654372792dc0fb7273f8ba
+=======
+>>>>>>> 709e03d991570e090cfaa6f5bef33c67c57b28bc
