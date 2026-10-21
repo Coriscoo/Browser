@@ -53,11 +53,11 @@ def main():
                     db.write("\n" + site)
                 db.close
 
-              elif cli.lower().startswith("#buscar"):
-                  url = cli.lower().removeprefix("#buscar").strip()
-                  resultado = pagina_web("https://" + url)
+            elif cli.lower().startswith("#buscar"):
+                url = cli.lower().removeprefix("#buscar").strip()
+                resultado = pagina_web("https://" + url)
 
-                  if resultado is not None:
+                if resultado is not None:
                       historico.visitar(url)
 
                       titulo, elementos, links = resultado
@@ -65,10 +65,10 @@ def main():
                       print(titulo)
                       print(elementos)
                       print(links)
-                  else:
+                else:
                       print("Url nao esta registrada.")
 
-              elif cli.lower().startswith("#voltar"):
+            elif cli.lower().startswith("#voltar"):
                   url = historico.voltar()
 
                   if url is None:
@@ -76,7 +76,7 @@ def main():
                   else:
                       print(f"Home: {url}")
 
-              elif cli.lower().startswith("#avancar"):
+            elif cli.lower().startswith("#avancar"):
                   url = historico.avancar()
 
                   if url is None:
@@ -84,14 +84,15 @@ def main():
                   else:
                       print(f"Home: {url}")
 
-              elif cli.lower().startswith("#historico"):
+            elif cli.lower().startswith("#historico"):
                   print("Histórico:", historico.historico())
                   print("Home:", historico.pagina_atual())
 
-                  elif cli.lower().strip() == "#exit":
-                      print("Encerrando Programa...")
-                      time.sleep(1)
-                      break
+            elif cli.lower().strip() == "#exit":
+                    print("Encerrando Programa...")
+                    time.sleep(1)
+                    break
+            
         except KeyboardInterrupt:
             print("\nEncerrando Programa...")
             time.sleep(1)
