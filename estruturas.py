@@ -1,7 +1,7 @@
 class No:
-    def __init__(self, url=0, prox=None, anterior=None):
+    def __init__(self, url=0, proximo=None, anterior=None):
         self.url = url
-        self.prox = prox
+        self.proximo = proximo
         self.anterior = anterior
 
     def __repr__(self):
@@ -41,13 +41,11 @@ class ListaDuplamenteEncadeada:
         self.tamanho = 0
 
     def lista(self):
-        if self.cabeca == None:
-            return
         lista_nos = []
         atual = self.cabeca
         while atual != None:
             lista_nos.append(atual.url)
-            atual = atual.prox
+            atual = atual.proximo
         return lista_nos
 
     def novo_no(self, valor):
