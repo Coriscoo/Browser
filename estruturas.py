@@ -37,6 +37,7 @@ class Pilha:
 class ListaDuplamenteEncadeada:
     def __init__(self):
         self.cabeca = None
+        self.atual = None
         self.cauda = None
         self.tamanho = 0
 
@@ -53,7 +54,7 @@ class ListaDuplamenteEncadeada:
     def novo_no(self, valor):
         no = No(valor)
         no.anterior = None
-        no.proximo = None
+        no.prox = None
         return no
 
     def is_empty(self):
@@ -64,7 +65,7 @@ class ListaDuplamenteEncadeada:
         if self.is_empty():
             self.cabeca = self.cauda = no
         else:
-            no.proximo = self.cabeca
+            no.prox = self.cabeca
             self.cabeca.anterior = no
             self.cabeca = no
         self.tamanho += 1
@@ -75,7 +76,7 @@ class ListaDuplamenteEncadeada:
             self.cabeca = self.cauda = no
         else:
             no.anterior = self.cauda
-            self.cauda.proximo = no
+            self.cauda.prox = no
             self.cauda = no
         self.tamanho += 1
 
@@ -87,8 +88,8 @@ class ListaDuplamenteEncadeada:
         atual = self.no_na_posicao(indice)
         no = self.novo_no(valor)
         no.anterior = atual.anterior
-        no.proximo = atual
-        atual.anterior.proximo = no
+        no.prox = atual
+        atual.anterior.prox = no
         atual.anterior = no
         self.tamanho += 1
 
@@ -96,7 +97,7 @@ class ListaDuplamenteEncadeada:
         if self.is_empty():
             raise IndexError("Lista vazia")
         valor = self.cabeca.url
-        self.cabeca = self.cabeca.proximo
+        self.cabeca = self.cabeca.prox
         if self.cabeca is None:
             self.cauda = None
         else:
@@ -112,7 +113,7 @@ class ListaDuplamenteEncadeada:
         if self.cauda is None:
             self.cabeca = None
         else:
-            self.cauda.proximo = None
+            self.cauda.prox = None
         self.tamanho -= 1
         return valor
 
@@ -121,16 +122,16 @@ class ListaDuplamenteEncadeada:
         while atual is not None:
             if atual.url == valor:
                 if atual.anterior is None:
-                    self.cabeca = atual.proximo
+                    self.cabeca = atual.prox
                 else:
-                    atual.anterior.proximo = atual.proximo
-                if atual.proximo is None:
+                    atual.anterior.prox = atual.prox
+                if atual.prox is None:
                     self.cauda = atual.anterior
                 else:
-                    atual.proximo.anterior = atual.anterior
+                    atual.prox.anterior = atual.anterior
                 self.tamanho -= 1
                 return True
-            atual = atual.proximo
+            atual = atual.prox
         return False
 
     def buscar(self, valor):
@@ -139,9 +140,52 @@ class ListaDuplamenteEncadeada:
         while atual is not None:
             if atual.url == valor:
                 return indice
-            atual = atual.proximo
+            atual = atual.prox
             indice += 1
         return -1
+
+    def visitar(self, url):
+        if self.atual is None:
+            self.inserir_fim(url)
+            self.atual = self.cauda
+            return
+        
+        no = self.atual.prox
+        while no is not None:
+            proximo = no.prox
+            no.anterior = None
+            no.prox = None
+            self.tamanho -= 1
+            no = proximo
+
+        self.atual.prox = None
+        self.cauda = self.atual
+
+        self.inserir_fim(url)
+        self.atual = self.cauda
+
+    def voltar(self):
+        if self.atual is None or self.atual.anterior is None:
+            return None
+
+        self.atual = self.atual.anterior
+        return self.atual.url
+
+    def avancar(self):
+        if self.atual is None or self.atual.prox is None:
+            return None
+
+        self.atual = self.atual.prox
+        return self.atual.url
+
+    def pagina_atual(self):
+        if self.atual is None:
+            return None
+
+        return self.atual.url
+
+    def historico(self):
+        return self.lista() or []
 
     def no_na_posicao(self, indice):
         if indice < 0:
@@ -151,7 +195,7 @@ class ListaDuplamenteEncadeada:
         if indice < self.tamanho // 2:
             atual = self.cabeca
             for _ in range(indice):
-                atual = atual.proximo
+                atual = atual.prox
         else:
             atual = self.cauda
             for _ in range(self.tamanho - 1 - indice):
@@ -171,7 +215,7 @@ class ListaDuplamenteEncadeada:
         atual = self.cabeca
         while atual is not None:
             yield atual.url
-            atual = atual.proximo
+            atual = atual.prox
 
     def __reversed__(self):
         atual = self.cauda
