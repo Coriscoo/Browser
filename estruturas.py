@@ -40,6 +40,16 @@ class ListaDuplamenteEncadeada:
         self.cauda = None
         self.tamanho = 0
 
+    def lista(self):
+        if self.cabeca == None:
+            return
+        lista_nos = []
+        atual = self.cabeca
+        while atual != None:
+            lista_nos.append(atual.url)
+            atual = atual.prox
+        return lista_nos
+
     def novo_no(self, valor):
         no = No(valor)
         no.anterior = None

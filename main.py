@@ -3,43 +3,52 @@ from paginas import pagina_web
 from estruturas import Pilha, ListaDuplamenteEncadeada
 
 def main():
-    sites = Pilha()
+    sites = ListaDuplamenteEncadeada()
     db = open("sites_registrados.txt", "r")
     conteudo = db.read()
     registrados = conteudo.splitlines()
     db.close()
     for site in registrados:
-        sites.push(site)
+        sites.inserir_fim(site)
 
     print("Forma de Uso:\n" \
     "#show --> Mostra os sites ja registrados\n" \
     "#add --> Registra um site\n" \
     "#pop --> Remove o ultimo site registrado\n" \
+    "#pop <url> Remove a url de sites registrados\n"
     "#buscar <url> --> Busca por um site registrado\n" \
     "#exit --> Encerra o programa\n")
     while True:
         cli = input(">")
         if cli.lower().startswith("#add "):
-            sites.push(cli.lower().removeprefix("#add "))
+            sites.inserir_fim(cli.lower().removeprefix("#add").strip())
             db = open("sites_registrados.txt", "a")
-            db.write("\n" + cli.lower().removeprefix("#add "))
+            db.write("\n" + cli.lower().removeprefix("#add").strip())
+            db.close
+        elif cli.lower().strip() == "#show":
+            print(str(sites).replace("<->", ""))
+
+        elif cli.lower().startswith("#pop"):
+            if cli.lower().strip() == "#pop":
+                sites.remover_fim()
+            else:
+                sites.remover(cli.lower().removeprefix("#pop").strip())
+            lista_pop = sites.lista()
+            db = open("sites_registrados.txt", "w")
+            for site in lista_pop:
+                db.write("\n" + site)
             db.close
 
-        elif cli.lower().strip() == "#show":
-            print(str(sites).replace(" -> None", ""))
-
-        elif cli.lower() == "#pop":
-            sites.pop()
-            print(str(sites.topo).replace(" -> None", ""))
-
-        elif cli.lower().startswith("#buscar "):
-            url = cli.lower().removeprefix("#buscar ")
+        elif cli.lower().startswith("#buscar"):
+            url = cli.lower().removeprefix("#buscar").strip()
             if url in registrados:
                 url = "https://" + url
                 titulo, elementos, links = pagina_web(url)
                 print(titulo)
                 print(elementos)
                 print(links)
+            else:
+                print("Url nao esta registrada.")
 
         elif cli.lower().strip() == "#exit":
             print("Encerrando Programa...")
