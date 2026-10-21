@@ -41,8 +41,6 @@ class ListaDuplamenteEncadeada:
         self.tamanho = 0
 
     def lista(self):
-        if self.cabeca == None:
-            return
         lista_nos = []
         atual = self.cabeca
         while atual != None:

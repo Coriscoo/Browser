@@ -9,7 +9,9 @@ def main():
     registrados = conteudo.splitlines()
     db.close()
     for site in registrados:
-        sites.inserir_fim(site)
+        site.strip()
+        if site:
+            sites.inserir_fim(site)
 
     print("Forma de Uso:\n" \
     "#show --> Mostra os sites ja registrados\n" \
@@ -33,6 +35,7 @@ def main():
             elif cli.lower().strip() == "#show":
                 mostrar = str(sites).replace("<->", "")
                 mostrar = mostrar.lstrip("[").rstrip("]")
+                mostrar = mostrar.lstrip("ÿþ")
                 print(mostrar.strip())
 
             elif cli.lower().startswith("#pop"):
