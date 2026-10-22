@@ -1,88 +1,106 @@
 import time
-from paginas import pagina_web
-from estruturas import Pilha, ListaDuplamenteEncadeada
+from paginas import pagina_web, exibir_pagina
+from estruturas import ListaDuplamenteEncadeada
+
+ARQUIVO = "sites_registrados.txt"
+
+
+def carregar_sites(sites):
+    with open(ARQUIVO, "r") as db:
+        for linha in db.read().splitlines():
+            linha = linha.strip()
+            if linha:  # ignora linhas em branco
+                sites.inserir_fim(linha)
+
+
+def salvar_sites(sites):
+    with open(ARQUIVO, "w") as db:
+        db.write("\n".join(sites))
+
 
 def main():
     historico = ListaDuplamenteEncadeada()
     sites = ListaDuplamenteEncadeada()
-    db = open("sites_registrados.txt", "r")
-    conteudo = db.read()
-    registrados = conteudo.splitlines()
-    db.close()
-    for site in registrados:
-        sites.inserir_fim(site)
+    carregar_sites(sites)
 
-    print("Forma de Uso:\n" \
-    "#show --> Mostra os sites ja registrados\n" \
-    "#add --> Registra um site\n" \
-    "#pop --> Remove o ultimo site registrado\n" \
-    "#pop <url> Remove a url de sites registrados\n"
-    "#buscar <url> --> Busca por um site registrado\n" \
-    "#Voltar\n"
-    "#Avançar\n"
-    "#historico\n"
-    "#exit --> Encerra o programa\n")
+    print("Forma de Uso:\n"
+          "#show --> Mostra os sites ja registrados\n"
+          "#add <url> --> Registra um site\n"
+          "#pop --> Remove o ultimo site registrado\n"
+          "#pop <url> --> Remove a url de sites registrados\n"
+          "#buscar <url> --> Busca por um site registrado\n"
+          "#voltar\n"
+          "#avancar\n"
+          "#historico\n"
+          "#exit --> Encerra o programa\n")
+
     while True:
-        cli = input(">")
-        if cli.lower().startswith("#add "):
-            sites.inserir_fim(cli.lower().removeprefix("#add ").strip()) 
-            db = open("sites_registrados.txt", "a")
-            db.write("\n" + cli.lower().removeprefix("#add ").strip())
-            db.close
-        elif cli.lower().strip() == "#show":
+        cli = input(">").strip()
+        comando = cli.lower()
+
+        if comando.startswith("#add "):
+            url = comando.removeprefix("#add ").strip()
+            if url in sites:
+                print("Site ja registrado.")
+            else:
+                sites.inserir_fim(url)
+                salvar_sites(sites)
+
+        elif comando == "#show":
             print(str(sites).replace("<->", ""))
 
-        elif cli.lower().startswith("#pop"):
-            if cli.lower().strip() == "#pop":
+        elif comando.startswith("#pop"):
+            if comando == "#pop":
+                if sites.is_empty():
+                    print("Nenhum site registrado.")
+                    continue
                 sites.remover_fim()
             else:
-                sites.remover(cli.lower().removeprefix("#pop").strip())
-            lista_pop = sites.lista()
-            db = open("sites_registrados.txt", "w")
-            for site in lista_pop:
-                db.write("\n" + site)
-            db.close
+                url = comando.removeprefix("#pop").strip()
+                if not sites.remover(url):
+                    print("Url nao encontrada.")
+                    continue
+            salvar_sites(sites)
 
-        elif cli.lower().startswith("#buscar"):
-            url = cli.lower().removeprefix("#buscar").strip()
-            resultado = pagina_web("https://" + url)
+        elif comando.startswith("#buscar"):
+            url = comando.removeprefix("#buscar").strip()
+
+            if url not in sites:
+                print("Url nao esta registrada.")
+                continue
+
+            resultado = pagina_web("https://www." + url)
 
             if resultado is not None:
                 historico.visitar(url)
-
                 titulo, elementos, links = resultado
-                print(f"Home: {historico.pagina_atual()}")
-                print(titulo)
-                print(elementos)
-                print(links)
+                exibir_pagina(url, titulo, elementos, links)
             else:
-                print("Url nao esta registrada.")
-            
-        elif cli.lower().startswith("#voltar"):
-            url = historico.voltar()
+                print("Nao foi possivel carregar a pagina.")
 
+        elif comando.startswith("#voltar"):
+            url = historico.voltar()
             if url is None:
                 print("Não há página anterior.")
             else:
                 print(f"Home: {url}")
 
-        elif cli.lower().startswith("#avancar"):
+        elif comando.startswith(("#avancar", "#avançar")):
             url = historico.avancar()
-
             if url is None:
                 print("Não há página seguinte.")
             else:
                 print(f"Home: {url}")
 
-        elif cli.lower().startswith("#historico"):
+        elif comando.startswith("#historico"):
             print("Histórico:", historico.historico())
             print("Home:", historico.pagina_atual())
 
-        elif cli.lower().strip() == "#exit":
+        elif comando == "#exit":
             print("Encerrando Programa...")
             time.sleep(1)
             break
 
+
 if __name__ == "__main__":
     main()
-    
