@@ -4,6 +4,6 @@
 # Arquivos temporários do Python
 __pycache__/
 *.py[cod]
-
+app.py
 # Dados sensíveis
 .env

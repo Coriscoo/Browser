@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Navegador de texto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:light dark;
+  --ink:#14212b; --mute:#586973; --line:#c7d1d6; --bg:#e6ebec; --surf:#fff;
+  --chrome:#16323a; --chrome-ink:#e8f0f1; --accent:#f2c230; --accent-ink:#2b2200;
+  --link:#0b5c7a; --danger:#a3261f; --hover:#eef3f4; --ok:#1d7a46;
+}
+@media (prefers-color-scheme:dark){:root{
+  --ink:#e3ebee; --mute:#93a5ad; --line:#2d3f46; --bg:#0f1a1e; --surf:#16252b;
+  --chrome:#0a1417; --link:#6ec3e0; --danger:#ff8a80; --hover:#1c2e35; --ok:#6fd39a;
+}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:15px/1.45 "Hanken Grotesk",system-ui,sans-serif;background:var(--bg);color:var(--ink);
+  display:grid;grid-template-rows:auto minmax(0,1fr)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+
+/* barra superior */
+header{background:var(--chrome);color:var(--chrome-ink);display:flex;gap:.5rem;align-items:center;
+  padding:.65rem .9rem;position:relative}
+header::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--accent)}
+body.carregando header::after{animation:carga 1.1s ease-in-out infinite}
+@keyframes carga{0%{left:0;width:0}50%{left:0;width:70%}100%{left:100%;width:0}}
+@media (prefers-reduced-motion:reduce){body.carregando header::after{animation:none;width:100%}}
+.ic{width:38px;height:38px;display:grid;place-items:center;border:0;border-radius:8px;
+  background:rgba(255,255,255,.09);color:var(--chrome-ink)}
+.ic:hover:not(:disabled){background:rgba(255,255,255,.18)}
+.ic:disabled{opacity:.3;cursor:default}
+#form-url{flex:1;display:flex;gap:.4rem;min-width:0}
+#url{flex:1;min-width:0;height:38px;padding:0 .8rem;border:1px solid rgba(255,255,255,.18);border-radius:8px;
+  background:rgba(255,255,255,.08);color:var(--chrome-ink)}
+#url::placeholder{color:rgba(232,240,241,.55)}
+.abrir{height:38px;padding:0 1rem;border:0;border-radius:8px;background:var(--accent);color:var(--accent-ink);font-weight:700}
+.sair{height:38px;padding:0 .9rem;border:1px solid rgba(255,255,255,.28);border-radius:8px;background:none;color:var(--chrome-ink)}
+.sair:hover{background:rgba(255,255,255,.1)}
+
+/* corpo */
+.app{display:grid;grid-template-columns:310px minmax(0,1fr);min-height:0}
+aside{overflow:auto;padding:1rem;border-right:1px solid var(--line);background:var(--bg)}
+aside section+section{margin-top:1.6rem}
+h2.sec{margin:0 0 .6rem;font-size:.95rem;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}
+h2.sec span{font-weight:400;color:var(--mute)}
+#form-add{display:flex;gap:.4rem;margin-bottom:.6rem}
+#novo{flex:1;min-width:0;height:34px;padding:0 .6rem;border:1px solid var(--line);border-radius:6px;background:var(--surf)}
+.mini{height:34px;padding:0 .75rem;border:1px solid var(--line);border-radius:6px;background:var(--surf);font-weight:600}
+.mini:hover{background:var(--hover)}
+ul.lista,ol.lista{list-style:none;margin:0 0 .6rem;padding:0}
+.lista li{display:flex;align-items:center;border-radius:6px}
+.lista li:hover{background:var(--hover)}
+.lista li.ativo{background:var(--surf);box-shadow:inset 3px 0 0 var(--accent)}
+.site{flex:1;min-width:0;text-align:left;border:0;background:none;padding:.42rem .6rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rm{border:0;background:none;color:var(--mute);width:30px;height:30px;border-radius:6px;font-size:1.1rem;line-height:1}
+.rm:hover{color:var(--danger)}
+.vazio-lista{color:var(--mute);padding:.3rem .6rem;margin:0}
+#historico li{padding:.4rem .6rem;gap:.5rem;color:var(--mute);overflow-wrap:anywhere}
+#historico li.ativo{color:var(--ink);font-weight:600}
+#historico li.futuro{font-style:italic}
+
+
+#leitor{overflow:auto;background:var(--surf)}
+article{max-width:70ch;margin:0 auto;padding:2.2rem 1.5rem 5rem;font:400 1.14rem/1.62 "Newsreader",Georgia,serif}
+.titulo{margin:0 0 .5rem;font:700 2.1rem/1.15 "Newsreader",Georgia,serif;overflow-wrap:anywhere}
+.endereco{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:2rem;padding-bottom:1rem;
+  border-bottom:1px solid var(--line);font:400 .9rem "Hanken Grotesk",sans-serif;color:var(--mute);overflow-wrap:anywhere}
+.selo{padding:.1rem .55rem;border-radius:99px;background:var(--hover);border:1px solid var(--line)}
+.endereco .mini{height:28px;font-size:.85rem}
+article p{margin:0 0 1rem}
+article .li{padding-left:1.3rem;position:relative;margin-bottom:.4rem}
+article .li::before{content:"";position:absolute;left:.3rem;top:.78em;width:.38rem;height:.38rem;border-radius:50%;background:var(--mute)}
+article h2{font-weight:700;line-height:1.25;margin:2rem 0 .7rem}
+.t1{font-size:1.9rem}.t2{font-size:1.5rem}.t3{font-size:1.25rem}.t4,.t5,.t6{font-size:1.1rem}
+blockquote{margin:0 0 1rem;padding:.1rem 0 .1rem 1.1rem;border-left:3px solid var(--line);color:var(--mute);font-style:italic}
+pre{margin:0 0 1rem;padding:.9rem 1rem;overflow:auto;background:var(--hover);border-radius:6px;font:.85rem/1.5 ui-monospace,Consolas,monospace}
+a.ref{font:700 .66rem "Hanken Grotesk",sans-serif;background:var(--accent);color:var(--accent-ink);
+  border-radius:3px;padding:.05rem .32rem;margin-left:.2rem;text-decoration:none;vertical-align:super}
+a.ref:hover{filter:brightness(.92)}
+details.links{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);font:400 .92rem "Hanken Grotesk",sans-serif}
+details.links summary{cursor:pointer;font-weight:700}
+details.links ol{margin:.8rem 0 0;padding-left:2.2rem}
+details.links li{margin-bottom:.3rem;overflow-wrap:anywhere}
+details.links a{color:var(--link)}
+.vazio{max-width:46ch;margin:18vh auto 0;padding:0 1.5rem;font-family:"Newsreader",Georgia,serif}
+.vazio h2{font-size:1.7rem;margin:0 0 .5rem}
+.vazio p{color:var(--mute);font-size:1.1rem;margin:0}
+.vazio.erro h2{color:var(--danger)}
+
+
+.painel{margin:0 0 1.6rem;padding:.8rem 1rem;border:1px solid var(--line);border-radius:8px;background:var(--hover);font:400 .95rem/1.6 ui-monospace,Consolas,monospace;overflow-wrap:anywhere}
+.painel .dica{color:var(--mute);margin-top:.3rem}
+.saida{margin:0 0 1.6rem;border-left:4px solid var(--accent);background:var(--hover);border-radius:0 8px 8px 0}
+.saida h3{margin:0;padding:.6rem 1rem 0;font:700 .95rem "Hanken Grotesk",sans-serif}
+.saida pre{margin:0;background:none;white-space:pre-wrap}
+.conteudo{white-space:pre-wrap;margin:0 0 1.5rem}
+.url-atual{font:600 1rem ui-monospace,Consolas,monospace;margin:0 0 .6rem;overflow-wrap:anywhere}
+.lk{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;font:400 .95rem "Hanken Grotesk",sans-serif}
+.lk .mini{font-family:ui-monospace,Consolas,monospace}
+.st{margin:0 0 1rem;font:700 .95rem "Hanken Grotesk",sans-serif}
+.st.ok{color:var(--ok)}.st.nf{color:var(--danger)}
+.ic.txt{font:700 1rem "Hanken Grotesk",sans-serif}
+
+#aviso{position:fixed;left:50%;bottom:1.2rem;transform:translate(-50%,140%);max-width:min(92vw,520px);
+  padding:.65rem 1rem;border-radius:8px;background:var(--chrome);color:var(--chrome-ink);font-weight:600;
+  transition:transform .2s;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+#aviso.on{transform:translate(-50%,0)}
+#aviso.erro{background:var(--danger);color:#fff}
+
+@media (max-width:780px){
+  body{display:block;height:auto}
+  .app{display:flex;flex-direction:column}
+  #leitor{order:-1;min-height:60vh}
+  aside{border-right:0;border-top:1px solid var(--line)}
+  .sair{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <button class="ic" id="voltar" title="Voltar (#back)" aria-label="Voltar" disabled>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+  </button>
+  <button class="ic" id="avancar" title="Avançar (#forward)" aria-label="Avançar" disabled>
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+  </button>
+  <form id="form-url">
+    <input id="url" list="lista-sites" placeholder="Digite uma url, /pasta ou #comando (ex.: #help)" autocomplete="off" spellcheck="false" aria-label="Url ou comando">
+    <button class="abrir" type="submit">Enviar</button>
+  </form>
+  <datalist id="lista-sites"></datalist>
+  <button class="ic txt" id="ajuda" title="Ajuda (#help)" aria-label="Ajuda">?</button>
+  <button class="sair" id="sair" title="Encerrar (#sair)">Encerrar</button>
+</header>
+
+<div class="app">
+  <aside>
+    <section>
+      <h2 class="sec">Sites registrados <span id="qtd-sites"></span></h2>
+      <form id="form-add">
+        <input id="novo" placeholder="exemplo.com.br" autocomplete="off" spellcheck="false" aria-label="Novo site">
+        <button class="mini" type="submit" title="#add <url>">Registrar</button>
+      </form>
+      <ul class="lista" id="sites"></ul>
+      <button class="mini" id="remover-ultimo" title="#pop">Remover o último</button>
+      <button class="mini" id="arvore" title="#show">Ver árvore</button>
+    </section>
+    <section>
+      <h2 class="sec">Histórico</h2>
+      <ol class="lista" id="historico"></ol>
+      <button class="mini" id="mostrar-hist" title="#showhist">Mostrar histórico</button>
+    </section>
+  </aside>
+  <main id="leitor"></main>
+</div>
+<div id="aviso" role="status" aria-live="polite"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+function el(tag, props = {}, ...filhos) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  }
+  e.append(...filhos);
+  return e;
+}
+
+let estado = {sites: [], historico: [], home: null, a_frente: [], pode_voltar: false, pode_avancar: false, pagina: null};
+let saida = null, tAviso;
+
+function aviso(msg, erro) {
+  const a = $('#aviso');
+  a.textContent = msg;
+  a.className = 'on' + (erro ? ' erro' : '');
+  clearTimeout(tAviso);
+  tAviso = setTimeout(() => a.className = '', 4500);
+}
+
+async function api(rota, corpo) {
+  document.body.classList.add('carregando');
+  try {
+    const opc = rota === 'estado' ? {} :
+      {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(corpo || {})};
+    const d = await (await fetch('/api/' + rota, opc)).json();
+    if (d.encerrado) return encerrado();
+    if (d.estado) estado = d.estado;
+    saida = d.saida || null;
+    if (d.mensagem) aviso(d.mensagem, !d.ok);
+    desenhar();
+    return d;
+  } catch (e) {
+    aviso('Sem conexão com o programa. Ele ainda está em execução?', true);
+  } finally {
+    document.body.classList.remove('carregando');
+  }
+}
+const cmd = texto => api('comando', {texto});   // barra e botões usam o mesmo caminho
+
+function encerrado() {
+  document.body.innerHTML = '<div class="vazio"><h2>Programa encerrado</h2><p>Você já pode fechar esta aba.</p></div>';
+}
+
+function desenhar() {
+  const e = estado;
+  $('#voltar').disabled = !e.pode_voltar;
+  $('#avancar').disabled = !e.pode_avancar;
+  $('#remover-ultimo').hidden = !e.sites.length;
+  $('#qtd-sites').textContent = e.sites.length || '';
+  $('#lista-sites').replaceChildren(...e.sites.map(s => el('option', {value: s})));
+
+  const ul = $('#sites');
+  ul.replaceChildren();
+  if (!e.sites.length) ul.append(el('li', {}, el('p', {class: 'vazio-lista'}, 'Nenhum site cadastrado ainda.')));
+  e.sites.forEach(s => {
+    const partes = s.split('/');
+    ul.append(el('li', {class: s === e.home ? 'ativo' : ''},
+      el('button', {class: 'site', title: s, style: 'padding-left:' + (0.6 + (partes.length - 1) * 0.9) + 'rem',
+        onclick: () => cmd(s)}, partes.length > 1 ? '/' + partes.pop() : s),
+      el('button', {class: 'rm', title: 'Remover ' + s, 'aria-label': 'Remover ' + s, onclick: () => cmd('#pop ' + s)}, '×')));
+  });
+
+  const h = $('#historico');
+  h.replaceChildren();
+  if (!e.home) h.append(el('li', {}, el('p', {class: 'vazio-lista'}, 'Nenhuma página visitada.')));
+  e.historico.forEach(u => h.append(el('li', {}, u)));
+  if (e.home) h.append(el('li', {class: 'ativo', 'aria-current': 'page'}, 'Home: ' + e.home));
+  e.a_frente.forEach(u => h.append(el('li', {class: 'futuro'}, u)));
+
+  desenharLeitor();
+}
+
+function desenharLeitor() {
+  const l = $('#leitor'), e = estado, rolagem = l.scrollTop;
+  const fmt = a => a.length ? a.map(u => '[' + u + ']').join('') : '[ ]';
+  const art = el('article');
+  art.append(el('div', {class: 'painel'},
+    el('div', {}, 'Histórico de visitas: ' + fmt(e.historico)),
+    el('div', {}, 'Home: ' + fmt(e.home ? [e.home] : [])),
+    el('div', {class: 'dica'}, 'Digite a url ou #back para retornar à última página visitada. #help lista todos os comandos.')));
+
+  if (saida) art.append(el('div', {class: 'saida'}, el('h3', {}, saida.titulo), el('pre', {}, saida.linhas.join('\n'))));
+
+  if (e.pagina) {
+    const achou = e.pagina.status === 200;
+    art.append(el('div', {class: 'url-atual'}, 'url: ' + e.pagina.url),
+      el('p', {class: 'st ' + (achou ? 'ok' : 'nf')}, achou ? 'Página encontrada!' : 'Página não encontrada'),
+      el('p', {class: 'conteudo'}, e.pagina.texto));
+    const lk = el('div', {class: 'lk'}, 'Links disponíveis:');
+    if (!e.pagina.links.length) lk.append('nenhum');
+    e.pagina.links.forEach(x => lk.append(el('button', {class: 'mini', onclick: () => cmd(x)}, x)));
+    art.append(lk);
+  } else if (!saida) {
+    art.append(el('p', {class: 'conteudo'}, 'Nenhuma página aberta. Digite uma url cadastrada (veja a lista ao lado) ou #help.'));
+  }
+  l.replaceChildren(art);
+  l.scrollTop = saida ? 0 : rolagem;
+}
+
+$('#form-url').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const texto = $('#url').value;
+  $('#url').value = '';
+  cmd(texto);
+});
+$('#form-add').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  const d = await cmd('#add ' + $('#novo').value);
+  if (d && d.ok) $('#novo').value = '';
+});
+$('#voltar').addEventListener('click', () => cmd('#back'));
+$('#avancar').addEventListener('click', () => cmd('#forward'));
+$('#remover-ultimo').addEventListener('click', () => cmd('#pop'));
+$('#arvore').addEventListener('click', () => cmd('#show'));
+$('#mostrar-hist').addEventListener('click', () => cmd('#showhist'));
+$('#ajuda').addEventListener('click', () => cmd('#help'));
+$('#sair').addEventListener('click', () => { if (confirm('Encerrar o programa?')) cmd('#sair'); });
+
+api('estado');
+</script>
+</body>
+</html>
