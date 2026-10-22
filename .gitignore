@@ -4,6 +4,9 @@
 # Arquivos temporários do Python
 __pycache__/
 *.py[cod]
-app.py
+
+# Conteúdo dos sites visitados
+conteudo/
+
 # Dados sensíveis
 .env
